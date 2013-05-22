@@ -23,6 +23,8 @@ program tight_binding_model
 		do j=1,n
 			if (abs(j-i) == 1) then
 				H0(i,j) = t
+			elseif (abs(j-i) == (N-1)) then
+				H0(i,j) = t
 			else
 				H0(i,j) = 0
 			endif
