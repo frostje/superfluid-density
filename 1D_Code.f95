@@ -1,13 +1,12 @@
 program tight_binding_model
 
 	!SCALAR VARIABLES
-	integer, parameter :: N=4, LWMAX = 1000, output=10
-	double precision, parameter :: t=-1.0d0, KB = 8.617d-5, pi = 3.14159265359d0
+	integer, parameter :: N=100, LWMAX = 1000
+	double precision, parameter :: t=-1.0d0, KB = 8.617d-5, pi = 4.0d0*atan(1.0d0)
 	character, parameter :: JOBZ='V', UPLO='U'
 	complex*16 :: imag = -1.0d0
-	integer :: LDA=N, INFO, LWORK, temp
-	double precision  B, Nl, Ne, MuGs, high, low, phib, x, u
-	double precision RoTar, Ro
+	integer :: LDA=N, INFO, LWORK
+	double precision  B, Nl, Ne, MuGs, high, low, phib, x, u, RoTar, Ro, temp
 
 	!ARRAY VARIABLES
 	double precision   RWORK(3*N-2), E(N)
@@ -25,7 +24,6 @@ program tight_binding_model
 	
 	x = (phib/dfloat(N))*2.0d0*pi
 	imag = sqrt(imag)
-	write(*,*) imag
 
 	!CONSTRUCTING THE HAMILTONIAN
 	do ix=1, N
@@ -40,8 +38,7 @@ program tight_binding_model
 		enddo
 	enddo
 
-	write(*,*) H0
-
+	!Calling ZHEEV to find eigen energies
 	LWORK = -1
 	call ZHEEV(JOBZ, UPLO, N, H0, LDA, E, WORK, LWORK, RWORK, INFO)
 	LWORK = min( LWMAX, int(WORK(1)))
@@ -51,12 +48,11 @@ program tight_binding_model
 	if (INFO == 0) then
 		write(*,*)'SUCCESS'
 	endif
-	write (*,*) E
+
 	!WRITING EIGENVALUES TO FILE
-	open(unit=output,file='results.txt',action='write',status='replace')
-	write(output,*) 'The eigenvalues are:'
+	write(*,*) 'The eigenvalues are:'
 	do l=1, n
-		write(output,*) E(l)
+		write(*,*) E(l)
 	enddo
 
 	!GETTING TEMP AND DENSITY FROM USER
@@ -89,7 +85,6 @@ program tight_binding_model
 			low = MuGs
 			MuGs = (high + low) / 2
 		endif
-		write(*,*) MuGs
 		
 		!MODIFYING Ro		
 		Ne = 0
@@ -99,12 +94,10 @@ program tight_binding_model
 		enddo
 	
 		Ro = Ne/N
-		write(*,*) Ro
 	enddo
 
-	write(output,*)'The chemical potential is:'
-	write(output,*) MuGs
-	close(output)
+	write(*,*)'The chemical potential is:'
+	write(*,*) MuGs
 	
 	!Calculating total potential energy
 	u = 0
@@ -113,6 +106,7 @@ program tight_binding_model
 		u = E(l)*2*Nl
 	enddo
 
+	write(*,*)'Total potential energy:'
 	write(*,*) u
 		
 	

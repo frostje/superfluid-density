@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#script to run multiple temps
+
+tk=1000
+
+while [ $tk -le 10000 ]; do
+    sed s/"TEMP"/"$tk"".0d0"/ in.tmp > input_file
+    ./a.out < input_file > t"$tk"
+    tk=`expr $tk + 500`
+ done
+
